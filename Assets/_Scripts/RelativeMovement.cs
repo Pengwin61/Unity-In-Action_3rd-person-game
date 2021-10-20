@@ -14,10 +14,11 @@ public class RelativeMovement : MonoBehaviour
     public float terminalVelocity = -10.0f;
     public float minFall = -1.5f;
 
-    private float _verSpeed;
+    private float _vertSpeed;
     private ControllerColliderHit _contact;
 
     private CharacterController _characterController;
+    private Animator _animator;
 
 
 
@@ -25,8 +26,10 @@ public class RelativeMovement : MonoBehaviour
 
     private void Start()
     {
-        _verSpeed = minFall;
+        _vertSpeed = minFall;
         _characterController = GetComponent<CharacterController>();
+        _animator = GetComponent<Animator>();
+
     }
 
 
@@ -37,7 +40,7 @@ public class RelativeMovement : MonoBehaviour
 
         float horInput = Input.GetAxis("Horizontal");
         float verInput = Input.GetAxis("Vertical");
-        if (horInput !=0 || verInput !=0 )
+        if (horInput != 0 || verInput != 0)
         {
             movement.x = horInput * moveSpeed;
             movement.z = verInput * moveSpeed;
@@ -53,35 +56,41 @@ public class RelativeMovement : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, direction, rotSpeed * Time.deltaTime);
         }
 
-
         bool hitGround = false;
         RaycastHit hit;
-        if (_verSpeed < 0 && Physics.Raycast(transform.position, Vector3.down, out hit)) 
+        if (_vertSpeed < 0 && Physics.Raycast(transform.position, Vector3.down, out hit)) 
         {
             float check = (_characterController.height + _characterController.radius) / 1.9f;
             hitGround = hit.distance <= check;
         }
 
+
+        _animator.SetFloat("Speed", movement.sqrMagnitude);
+
         if (hitGround)
         {
             if (Input.GetButtonDown("Jump"))
             {
-                _verSpeed = jumpSpeed;
+                _vertSpeed = jumpSpeed;
             }
             else
             {
-                _verSpeed = minFall;
+                _vertSpeed = -0.1f;
+                _animator.SetBool("Jumping", false);
             }
         }
-
         else
         {
-            _verSpeed += gravity * 5 * Time.deltaTime;
-            if (_verSpeed < terminalVelocity)
+            _vertSpeed += gravity * 5 * Time.deltaTime;
+            if (_vertSpeed < terminalVelocity)
             {
-                _verSpeed = terminalVelocity;
+                _vertSpeed = terminalVelocity;
             }
 
+            if (_contact != null)
+            {
+                _animator.SetBool("Jumping", true);
+            }
 
             if (_characterController.isGrounded)
             {
@@ -98,7 +107,7 @@ public class RelativeMovement : MonoBehaviour
 
 
 
-        movement.y = _verSpeed;
+        movement.y = _vertSpeed;
 
         movement *= Time.deltaTime;
         _characterController.Move(movement);
