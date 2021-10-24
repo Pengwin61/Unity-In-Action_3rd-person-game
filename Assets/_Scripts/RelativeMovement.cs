@@ -14,6 +14,8 @@ public class RelativeMovement : MonoBehaviour
     public float terminalVelocity = -10.0f;
     public float minFall = -1.5f;
 
+    public float pushForce = 3.0f;
+
     private float _vertSpeed;
     private ControllerColliderHit _contact;
 
@@ -51,7 +53,6 @@ public class RelativeMovement : MonoBehaviour
             movement = target.TransformDirection(movement);
             target.rotation = tmp;
 
-            //transform.rotation = Quaternion.LookRotation(movement);
             Quaternion direction = Quaternion.LookRotation(movement);
             transform.rotation = Quaternion.Lerp(transform.rotation, direction, rotSpeed * Time.deltaTime);
         }
@@ -104,9 +105,6 @@ public class RelativeMovement : MonoBehaviour
                 }
             }
         }
-
-
-
         movement.y = _vertSpeed;
 
         movement *= Time.deltaTime;
@@ -116,5 +114,12 @@ public class RelativeMovement : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         _contact = hit;
+
+
+        Rigidbody body = hit.collider.attachedRigidbody;
+        if (body != null && !body.isKinematic)
+        {
+            body.velocity = hit.moveDirection * pushForce;
+        }
     }
 }
