@@ -7,14 +7,19 @@ public class DeviceTrigger : MonoBehaviour
 
     [SerializeField] private GameObject[] targets;
 
+    public bool requireKey;
+
 
 
     private void OnTriggerEnter(Collider other)
     {
-        foreach (GameObject target in targets)
+        if (requireKey && Managers.Inventory.equippedItem != "key")
         {
-            target.SendMessage("Activate");
+            return;
         }
+        
+        
+
     }
 
 
