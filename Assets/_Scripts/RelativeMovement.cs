@@ -31,7 +31,6 @@ public class RelativeMovement : MonoBehaviour
         _vertSpeed = minFall;
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
-
     }
 
 
